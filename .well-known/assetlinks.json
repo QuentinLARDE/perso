@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.quentinlarde.twa",
+        "sha256_cert_fingerprints": ["A2:77:0E:3B:F0:5E:85:FE:F7:CC:06:3E:F7:2B:41:67:90:C4:00:03:A0:8E:66:6F:20:3B:C1:D4:35:26:80:EF"]
+      }
+    }]
