@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon espace</title>
+<meta name="description" content="Applications et documents personnels.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12141A; --bg2:#171A21; --card:#1B1F27; --card-hover:#20242D;
+    --border:#262B35; --border-light:#313744;
+    --text:#EDEFF3; --text-muted:#8992A3; --text-faint:#5B6270;
+    --accent:#4FA184; --accent-soft:rgba(79,161,132,0.14);
+    --copper:#C9974A; --copper-soft:rgba(201,151,74,0.14);
+    --font-display:'Fraunces',serif; --font-body:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--font-body);
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .wrap{max-width:760px; margin:0 auto; padding:0 20px;}
+
+  header.hero{padding:64px 0 40px; border-bottom:1px solid var(--border);}
+  .eyebrow{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); margin:0 0 14px;
+  }
+  h1{
+    font-family:var(--font-display); font-weight:600; font-size:clamp(32px,6vw,46px);
+    line-height:1.08; margin:0 0 16px; letter-spacing:-.01em;
+  }
+  .lede{color:var(--text-muted); font-size:16px; max-width:46ch; margin:0;}
+
+  section{padding:44px 0;}
+  section + section{border-top:1px solid var(--border);}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:20px;}
+  .section-title{
+    font-family:var(--font-display); font-weight:600; font-size:22px; margin:0; letter-spacing:-.01em;
+  }
+  .section-count{font-family:var(--font-mono); font-size:12px; color:var(--text-faint);}
+
+  .stack{display:flex; flex-direction:column; gap:12px;}
+
+  /* --- Carte "fiche" : l'élément signature de la page --- */
+  .card{
+    position:relative; display:flex; flex-direction:column; gap:10px;
+    background:var(--card); border:1px solid var(--border); border-radius:4px;
+    padding:20px 20px 18px 44px; transition:border-color .15s, background .15s;
+  }
+  .card:hover{background:var(--card-hover); border-color:var(--border-light);}
+  .card::before{
+    content:attr(data-tab); position:absolute; left:0; top:0; bottom:0; width:28px;
+    display:flex; align-items:center; justify-content:center;
+    writing-mode:vertical-rl; text-orientation:mixed; transform:rotate(180deg);
+    font-family:var(--font-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em;
+    color:var(--tab-color,var(--accent)); background:var(--tab-bg,var(--accent-soft));
+    border-right:1px solid var(--border);
+  }
+  .card[data-kind="apk"]{--tab-color:var(--copper); --tab-bg:var(--copper-soft);}
+  .card[data-kind="xlsx"]{--tab-color:var(--copper); --tab-bg:var(--copper-soft);}
+
+  .card-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .card-title{font-family:var(--font-body); font-weight:600; font-size:16.5px; margin:0;}
+  .card-meta{font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint); white-space:nowrap;}
+  .card-desc{color:var(--text-muted); font-size:14px; margin:0; max-width:52ch;}
+
+  .card-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:2px;}
+  .btn{
+    display:inline-flex; align-items:center; gap:7px; font-family:var(--font-body); font-weight:600;
+    font-size:13.5px; padding:8px 14px; border-radius:4px; text-decoration:none; cursor:pointer;
+    border:1px solid var(--border-light); transition:opacity .15s, transform .1s;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent); border-color:var(--accent); color:#0C1310;}
+  .btn-secondary{background:transparent; color:var(--text);}
+  .btn-secondary:hover{background:var(--bg2);}
+  .btn[aria-disabled="true"]{opacity:.45; pointer-events:none;}
+
+  footer{padding:36px 0 60px; color:var(--text-faint); font-size:12.5px; font-family:var(--font-mono);}
+  footer a{color:var(--text-muted); text-decoration:underline; text-decoration-color:var(--border-light);}
+
+  @media (prefers-reduced-motion: reduce){
+    .card{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <header class="hero">
+      <p class="eyebrow">Quentin Larde</p>
+      <h1>Cours &amp; projets persos</h1>
+      <p class="lede">Actuaire / analyste data aux Assurances du Crédit Mutuel, où je travaille sur la data, le contrôle permanent et la LCB-FT. Je donne aussi des cours d'Excel au Master Assurance et Gestion des Risques de Strasbourg.</p>
+    </header>
+
+    <!--
+      Section Applications — un item pour l'instant (Assistant musculation).
+      Pour ajouter une autre appli plus tard, duplique le bloc <div class="card" ...>...</div>.
+    -->
+    <section id="applications">
+      <div class="section-head">
+        <h2 class="section-title">Applications</h2>
+        <span class="section-count">01</span>
+      </div>
+      <div class="stack">
+        <div class="card" data-tab="APP" data-kind="app">
+          <div class="card-top">
+            <h3 class="card-title">Assistant musculation</h3>
+            <span class="card-meta">web · android</span>
+          </div>
+          <p class="card-desc">Carnet de séances, suivi du poids, calendrier, progression et minuteur fractionné.</p>
+          <div class="card-actions">
+            <a class="btn btn-primary" href="./app/">Ouvrir l'appli</a>
+            <!-- Retire aria-disabled="true" une fois assistant-musculation.apk déposé dans /files -->
+            <a class="btn btn-secondary" href="./files/assistant-musculation.apk" aria-disabled="true" download>Télécharger l'APK</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--
+      Section Documents — remplace le contenu de chaque carte par tes vrais fichiers.
+      Pour en ajouter un : copie un bloc <div class="card" data-kind="xlsx">...</div>,
+      change le titre, la description et le lien href vers ./files/tonfichier.xlsx
+    -->
+    <section id="documents">
+      <div class="section-head">
+        <h2 class="section-title">Cours Excel</h2>
+        <span class="section-count">03</span>
+      </div>
+      <div class="stack">
+        <div class="card" data-tab="XLSX" data-kind="xlsx">
+          <div class="card-top">
+            <h3 class="card-title">À compléter — nom du cours 1</h3>
+            <span class="card-meta">.xlsx</span>
+          </div>
+          <p class="card-desc">Décris ici en une phrase ce que contient ce fichier.</p>
+          <div class="card-actions">
+            <a class="btn btn-secondary" href="./files/cours-1.xlsx" download>Télécharger</a>
+          </div>
+        </div>
+        <div class="card" data-tab="XLSX" data-kind="xlsx">
+          <div class="card-top">
+            <h3 class="card-title">À compléter — nom du cours 2</h3>
+            <span class="card-meta">.xlsx</span>
+          </div>
+          <p class="card-desc">Décris ici en une phrase ce que contient ce fichier.</p>
+          <div class="card-actions">
+            <a class="btn btn-secondary" href="./files/cours-2.xlsx" download>Télécharger</a>
+          </div>
+        </div>
+        <div class="card" data-tab="XLSX" data-kind="xlsx">
+          <div class="card-top">
+            <h3 class="card-title">À compléter — nom du cours 3</h3>
+            <span class="card-meta">.xlsx</span>
+          </div>
+          <p class="card-desc">Décris ici en une phrase ce que contient ce fichier.</p>
+          <div class="card-actions">
+            <a class="btn btn-secondary" href="./files/cours-3.xlsx" download>Télécharger</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Page hébergée avec GitHub Pages.
+    </footer>
+  </div>
+
+</body>
+</html>
