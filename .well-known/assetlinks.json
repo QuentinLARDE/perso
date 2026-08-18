@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "io.github.quentinlarde.twa",
-        "sha256_cert_fingerprints": ["A2:77:0E:3B:F0:5E:85:FE:F7:CC:06:3E:F7:2B:41:67:90:C4:00:03:A0:8E:66:6F:20:3B:C1:D4:35:26:80:EF"]
+        "sha256_cert_fingerprints": ["9F:47:A1:F8:A7:F3:7C:E3:2C:BE:2D:70:BB:2B:0A:FE:00:08:34:01:DE:EA:D3:BD:80:15:F0:DA:E3:E5:41:40"]
       }
     }]
