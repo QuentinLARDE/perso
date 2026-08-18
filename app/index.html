@@ -65,18 +65,15 @@
 })();
 </script>
 
-<!-- Versions figées volontairement : évite qu'une mise à jour amont ne recasse la compatibilité. -->
+<!-- Plus que 3 dépendances externes : React, ReactDOM, Babel (pour le JSX). Versions figées. -->
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-<script src="https://unpkg.com/react-is@18.3.1/umd/react-is.production.min.js"></script>
-<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
 
 <script type="text/babel" data-presets="react,env">
 const { useState, useEffect, useMemo, useCallback } = React;
-const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } = Recharts;
 
+// --- Icônes légères (emoji) ---
 function makeIcon(glyph) {
   return function IconCmp({ size = 16, color = "currentColor", style, ...rest }) {
     return React.createElement(
@@ -109,6 +106,138 @@ const Play = makeIcon("\u25B6");
 const Pause = makeIcon("\u23F8");
 const RotateCcw = makeIcon("\u21BA");
 const Bookmark = makeIcon("\uD83D\uDD16");
+
+// --- Mini graphique en ligne "maison", en SVG pur, sans dépendance externe ---
+// Remplace Recharts : gère exactement ce dont l'appli a besoin (ligne + grille + axes + info au survol).
+function XAxis() { return null; }
+function YAxis() { return null; }
+function Line() { return null; }
+function CartesianGrid() { return null; }
+function Tooltip() { return null; }
+
+function findChildProps(children, Comp) {
+  let found = null;
+  React.Children.forEach(children, (c) => { if (c && c.type === Comp) found = c.props; });
+  return found;
+}
+
+function ResponsiveContainer({ height = 220, children }) {
+  const ref = React.useRef(null);
+  const [w, setW] = React.useState(300);
+  React.useEffect(() => {
+    if (!ref.current) return;
+    const update = () => setW(ref.current.offsetWidth || 300);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, []);
+  return React.createElement("div", { ref, style: { width: "100%" } },
+    React.cloneElement(children, { chartWidth: w, chartHeight: height })
+  );
+}
+
+function LineChart({ data, margin = {}, chartWidth = 300, chartHeight = 220, children }) {
+  const m = { top: margin.top || 10, right: margin.right || 10, bottom: margin.bottom || 24, left: margin.left != null ? Math.max(margin.left, 34) : 34 };
+  const w = chartWidth, h = chartHeight;
+  const plotW = Math.max(10, w - m.left - m.right);
+  const plotH = Math.max(10, h - m.top - m.bottom);
+
+  const xAxisProps = findChildProps(children, XAxis) || {};
+  const yAxisProps = findChildProps(children, YAxis) || {};
+  const lineProps = findChildProps(children, Line) || {};
+  const showGrid = !!findChildProps(children, CartesianGrid);
+  const tooltipProps = findChildProps(children, Tooltip);
+
+  const xKey = xAxisProps.dataKey || "label";
+  const yKey = lineProps.dataKey || "value";
+
+  const values = data.map((d) => Number(d[yKey]) || 0);
+  let yMin = values.length ? Math.min(...values) : 0;
+  let yMax = values.length ? Math.max(...values) : 1;
+  if (Array.isArray(yAxisProps.domain)) {
+    const [dMin, dMax] = yAxisProps.domain;
+    if (typeof dMin === "number") yMin = dMin;
+    else if (typeof dMin === "string" && dMin.indexOf("dataMin") >= 0) {
+      const delta = parseFloat(dMin.replace("dataMin", "").trim()) || 0;
+      yMin = (values.length ? Math.min(...values) : 0) + delta;
+    }
+    if (typeof dMax === "number") yMax = dMax;
+    else if (typeof dMax === "string" && dMax.indexOf("dataMax") >= 0) {
+      const delta = parseFloat(dMax.replace("dataMax", "").replace("+", "").trim()) || 0;
+      yMax = (values.length ? Math.max(...values) : 1) + delta;
+    }
+  }
+  if (yMin === yMax) { yMin -= 1; yMax += 1; }
+
+  const n = data.length;
+  const xPos = (i) => (n <= 1 ? plotW / 2 : (i / (n - 1)) * plotW);
+  const yPos = (v) => plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+  const points = data.map((d, i) => [xPos(i), yPos(Number(d[yKey]) || 0)]);
+  const pathD = points.map((p, i) => (i === 0 ? "M" : "L") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+
+  const [hover, setHover] = React.useState(null);
+  const handleMove = (e) => {
+    if (!n) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left - m.left;
+    let idx = Math.round((x / plotW) * (n - 1));
+    idx = Math.max(0, Math.min(n - 1, idx));
+    setHover(idx);
+  };
+
+  const gridLines = [];
+  if (showGrid) {
+    for (let i = 0; i <= 4; i++) {
+      const y = (plotH / 4) * i;
+      gridLines.push(React.createElement("line", { key: "g" + i, x1: 0, y1: y, x2: plotW, y2: y, stroke: "#2A2E35", strokeWidth: 1 }));
+    }
+  }
+
+  const yTicks = [];
+  for (let i = 0; i <= 4; i++) {
+    const v = yMin + ((yMax - yMin) / 4) * i;
+    const y = yPos(v);
+    yTicks.push(React.createElement("text", { key: "y" + i, x: -8, y: y + 4, textAnchor: "end", fontSize: 11, fontFamily: "'JetBrains Mono',monospace", fill: "#565C66" }, Math.round(v * 10) / 10));
+  }
+
+  const xTickEvery = Math.max(1, Math.ceil(n / 6));
+  const xTicks = data
+    .map((d, i) => i)
+    .filter((i) => i % xTickEvery === 0 || i === n - 1)
+    .map((i) => React.createElement("text", { key: "x" + i, x: xPos(i), y: plotH + 18, textAnchor: "middle", fontSize: 11, fontFamily: "'Inter',sans-serif", fill: "#565C66" }, data[i][xKey]));
+
+  let tooltipEl = null;
+  if (hover != null && tooltipProps && points[hover]) {
+    const tw = 130, th = 34;
+    const tx = Math.min(Math.max(points[hover][0] - tw / 2, 0), Math.max(0, plotW - tw));
+    let content = data[hover][yKey];
+    if (tooltipProps.formatter) {
+      try {
+        const r = tooltipProps.formatter(data[hover][yKey], null, { payload: data[hover] });
+        content = Array.isArray(r) ? r.join(" — ") : r;
+      } catch (e) { /* ignore */ }
+    }
+    tooltipEl = React.createElement(
+      "foreignObject", { x: tx, y: -2, width: tw, height: th },
+      React.createElement("div", {
+        style: { background: "#191C21", border: "1px solid #33383F", borderRadius: 6, padding: "4px 8px", fontSize: 11.5, fontFamily: "'Inter',sans-serif", color: "#EDEFF3", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+      }, content)
+    );
+  }
+
+  return React.createElement(
+    "svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h, onMouseMove: handleMove, onMouseLeave: () => setHover(null) },
+    React.createElement(
+      "g", { transform: "translate(" + m.left + "," + m.top + ")" },
+      gridLines, yTicks, xTicks,
+      React.createElement("path", { d: pathD, fill: "none", stroke: (lineProps.stroke || "#C4432B"), strokeWidth: lineProps.strokeWidth || 2.5 }),
+      points.map((p, i) => React.createElement("circle", { key: "p" + i, cx: p[0], cy: p[1], r: hover === i ? 5.5 : 3.5, fill: lineProps.stroke || "#C4432B" })),
+      hover != null && points[hover] && React.createElement("line", { x1: points[hover][0], y1: 0, x2: points[hover][0], y2: plotH, stroke: "#33383F", strokeDasharray: "3,3" }),
+      tooltipEl
+    )
+  );
+}
 
 
 /* ---------------------------------------------------------------
