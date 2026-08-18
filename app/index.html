@@ -20,7 +20,6 @@
 <body>
 <div id="root"><div id="boot-msg">Chargement…</div></div>
 
-<!-- Stockage 100% local (ce téléphone / ce navigateur uniquement), sans compte ni serveur. -->
 <script>
 (function () {
   var PREFIX = "assistant-musculation:";
@@ -59,20 +58,25 @@
       navigator.serviceWorker.register("./sw.js").catch(function () {});
     });
   }
+  setTimeout(function () {
+    var el = document.getElementById("boot-msg");
+    if (el) el.textContent = "Ça prend plus de temps que prévu — vérifie ta connexion et recharge la page.";
+  }, 10000);
 })();
 </script>
 
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
-<script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<!-- Versions figées volontairement : évite qu'une mise à jour amont ne recasse la compatibilité. -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script src="https://unpkg.com/react-is@18.3.1/umd/react-is.production.min.js"></script>
+<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
 
 <script type="text/babel" data-presets="react,env">
 const { useState, useEffect, useMemo, useCallback } = React;
 const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } = Recharts;
 
-// Icônes légères (emoji) — évite une dépendance supplémentaire pour la version locale.
 function makeIcon(glyph) {
   return function IconCmp({ size = 16, color = "currentColor", style, ...rest }) {
     return React.createElement(
