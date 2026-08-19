@@ -10,11 +10,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#12141A; --bg2:#171A21; --card:#1B1F27; --card-hover:#20242D;
-    --border:#262B35; --border-light:#313744;
-    --text:#EDEFF3; --text-muted:#8992A3; --text-faint:#5B6270;
-    --accent:#4FA184; --accent-soft:rgba(79,161,132,0.14);
-    --copper:#C9974A; --copper-soft:rgba(201,151,74,0.14);
+    --bg:#0A1220; --bg2:#0F1A2C; --card:#132136; --card-hover:#17283F;
+    --border:#1E3350; --border-light:#2B4569;
+    --text:#ECF1F7; --text-muted:#93A4BC; --text-faint:#5E7291;
+    --accent:#4FA8E8; --accent-soft:rgba(79,168,232,0.14);
+    --copper:#E8635C; --copper-soft:rgba(232,99,92,0.14);
     --font-display:'Fraunces',serif; --font-body:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
   }
   *{box-sizing:border-box;}
@@ -79,7 +79,7 @@
     border:1px solid var(--border-light); transition:opacity .15s, transform .1s;
   }
   .btn:active{transform:translateY(1px);}
-  .btn-primary{background:var(--accent); border-color:var(--accent); color:#0C1310;}
+  .btn-primary{background:var(--accent); border-color:var(--accent); color:#0A1220;}
   .btn-secondary{background:transparent; color:var(--text);}
   .btn-secondary:hover{background:var(--bg2);}
   .btn[aria-disabled="true"]{opacity:.45; pointer-events:none;}
@@ -99,7 +99,15 @@
       <p class="eyebrow">Quentin Larde</p>
       <h1>Cours &amp; projets persos</h1>
       <p class="lede">Actuaire / analyste data aux Assurances du Crédit Mutuel, où je travaille sur la data, le contrôle permanent et la LCB-FT. Je donne aussi des cours d'Excel au Master Assurance et Gestion des Risques de Strasbourg.</p>
-      <p class="lede" style="margin-top:14px;"><a href="https://www.linkedin.com/in/quentin-larde-371231203/" target="_blank" rel="noopener" style="color:var(--accent); text-decoration:underline; text-decoration-color:var(--border-light);">LinkedIn ↗</a></p>
+      <p class="lede" style="margin-top:14px;">
+        <a href="https://www.linkedin.com/in/quentin-larde-371231203/" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; color:var(--text-muted); text-decoration:none;">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0;">
+            <rect width="24" height="24" rx="4" fill="#0A66C2"/>
+            <path fill="#FFFFFF" d="M6.94 8.5H4V20h2.94V8.5zM5.47 4a1.71 1.71 0 100 3.42 1.71 1.71 0 000-3.42zM20 20h-2.94v-6.19c0-1.48-.03-3.38-2.06-3.38-2.07 0-2.39 1.61-2.39 3.28V20H9.68V8.5h2.83v1.57h.04c.39-.74 1.36-1.53 2.79-1.53 2.98 0 3.53 1.96 3.53 4.52V20z"/>
+          </svg>
+          <span style="text-decoration:underline; text-decoration-color:var(--border-light); color:var(--accent);">LinkedIn ↗</span>
+        </a>
+      </p>
     </header>
 
     <!--
