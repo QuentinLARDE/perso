@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "io.github.quentinlarde.assistantmusculation",
-        "sha256_cert_fingerprints": ["AB:89:19:2C:BB:A6:EA:3C:86:4E:72:40:52:DA:45:7C:71:F7:96:07:29:54:26:74:70:98:74:DD:72:AE:09:1A"]
+        "package_name": "io.github.quentinlarde.twa",
+        "sha256_cert_fingerprints": ["A3:9D:8C:BF:81:EB:D3:B0:74:F5:6A:11:5B:CA:67:B1:D0:5C:73:E3:70:60:A7:14:97:9B:6C:0E:CF:AE:EE:D1"]
       }
     }]
