@@ -65,7 +65,6 @@
 })();
 </script>
 
-<!-- Plus que 3 dépendances externes : React, ReactDOM, Babel (pour le JSX). Versions figées. -->
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
@@ -73,7 +72,6 @@
 <script type="text/babel" data-presets="react,env">
 const { useState, useEffect, useMemo, useCallback } = React;
 
-// --- Icônes légères (emoji) ---
 function makeIcon(glyph) {
   return function IconCmp({ size = 16, color = "currentColor", style, ...rest }) {
     return React.createElement(
@@ -107,8 +105,6 @@ const Pause = makeIcon("\u23F8");
 const RotateCcw = makeIcon("\u21BA");
 const Bookmark = makeIcon("\uD83D\uDD16");
 
-// --- Mini graphique en ligne "maison", en SVG pur, sans dépendance externe ---
-// Remplace Recharts : gère exactement ce dont l'appli a besoin (ligne + grille + axes + info au survol).
 function XAxis() { return null; }
 function YAxis() { return null; }
 function Line() { return null; }
@@ -268,6 +264,42 @@ const T = {
   fontMono: "'JetBrains Mono', monospace",
 };
 
+// Modes de couleurs — ne changent que les tons de surface/texte/accent principal ;
+// les couleurs "sémantiques" (steel, gold, green, danger, fractionne) restent stables entre les modes.
+const THEMES = {
+  fonte: {
+    label: "Fonte (rouge)", swatch: "#C4432B",
+    bg: "#14161A", bg2: "#191C21", card: "#1D2126", cardHover: "#23272D",
+    border: "#2A2E35", borderLight: "#33383F",
+    text: "#EDEEF0", textMuted: "#8B919B", textFaint: "#565C66",
+    accent: "#C4432B", accentSoft: "#C4432B22",
+  },
+  marine: {
+    label: "Marine (bleu)", swatch: "#4FA8E8",
+    bg: "#0A1220", bg2: "#0F1A2C", card: "#132136", cardHover: "#17283F",
+    border: "#1E3350", borderLight: "#2B4569",
+    text: "#ECF1F7", textMuted: "#93A4BC", textFaint: "#5E7291",
+    accent: "#4FA8E8", accentSoft: "#4FA8E822",
+  },
+  clair: {
+    label: "Clair", swatch: "#0B3E82",
+    bg: "#FFFFFF", bg2: "#F4F7FB", card: "#FFFFFF", cardHover: "#F4F8FC",
+    border: "#DCE6F2", borderLight: "#C6D6EA",
+    text: "#0B1F38", textMuted: "#4C5F79", textFaint: "#8195AC",
+    accent: "#0B3E82", accentSoft: "#0B3E8214",
+  },
+};
+const DEFAULT_THEME_ID = "fonte";
+function applyTheme(themeId) {
+  const t = THEMES[themeId] || THEMES[DEFAULT_THEME_ID];
+  Object.assign(T, {
+    bg: t.bg, bg2: t.bg2, card: t.card, cardHover: t.cardHover,
+    border: t.border, borderLight: t.borderLight,
+    text: t.text, textMuted: t.textMuted, textFaint: t.textFaint,
+    accent: t.accent, accentSoft: t.accentSoft,
+  });
+}
+
 const PALETTE = ["#C4432B", "#5B7A93", "#C9A227", "#8B5FA8", "#4E9E7B", "#B85C8A", "#3E7CB1", "#A6763B"];
 
 const uid = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -289,6 +321,8 @@ const fmtDateShort = (iso) => {
   return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 };
 const fmtDuration = (min) => `${min ?? 0} min`;
+// Normalise pour une recherche insensible aux accents/majuscules (ex: "developpe" trouve "développé")
+const normalizeSearch = (s) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const fmtSet = (s) => `${s.weight || 0}kg × ${s.reps || 0}`;
 // Regroupe les séries identiques consécutives (poids, répét. ET repos), ex: 8kg×8, 8kg×8, 8kg×8, 6kg×10 -> "8kg × 8 (×3), 6kg × 10"
 function groupSets(sets) {
@@ -312,30 +346,50 @@ const DEFAULT_CONFIG = {
     { id: "pecs", name: "Pecs", color: "#8B5FA8" },
     { id: "dos", name: "Dos", color: "#4E9E7B" },
     { id: "full", name: "Full Body", color: "#B85C8A" },
+    { id: "epaules", name: "Épaules", color: "#3E7CB1" },
+    { id: "ischio", name: "Ischio", color: "#A6763B" },
+    { id: "quadris", name: "Quadris", color: "#C9A227" },
+    { id: "bras", name: "Bras", color: "#B85C8A" },
   ],
   exercises: [
     { id: "dc-barre", name: "Développé couché barre", sessionTypeIds: ["push", "pecs"] },
     { id: "dc-halteres", name: "Développé couché haltères", sessionTypeIds: ["push", "pecs"] },
-    { id: "dev-militaire", name: "Développé militaire", sessionTypeIds: ["push"] },
+    { id: "dc-smith", name: "Développé couché smith machine", sessionTypeIds: ["push", "pecs"] },
+    { id: "di-barre", name: "Développé incliné barre", sessionTypeIds: ["push", "pecs"] },
+    { id: "di-halteres", name: "Développé incliné haltères", sessionTypeIds: ["push", "pecs"] },
+    { id: "di-smith", name: "Développé incliné smith machine", sessionTypeIds: ["push", "pecs"] },
+    { id: "dev-militaire", name: "Développé militaire", sessionTypeIds: ["push", "epaules"] },
     { id: "dips", name: "Dips", sessionTypeIds: ["push"] },
     { id: "ecarte", name: "Écarté couché haltères", sessionTypeIds: ["pecs"] },
     { id: "pec-deck", name: "Pec deck", sessionTypeIds: ["pecs"] },
-    { id: "ext-triceps", name: "Extension triceps poulie", sessionTypeIds: ["push"] },
+    { id: "ext-triceps", name: "Extension triceps poulie", sessionTypeIds: ["push", "bras"] },
     { id: "tractions", name: "Tractions", sessionTypeIds: ["pull", "dos"] },
     { id: "rowing-barre", name: "Rowing barre", sessionTypeIds: ["pull", "dos"] },
     { id: "rowing-haltere", name: "Rowing haltère", sessionTypeIds: ["pull", "dos"] },
     { id: "tirage-vertical", name: "Tirage vertical", sessionTypeIds: ["dos"] },
     { id: "tirage-horizontal", name: "Tirage horizontal", sessionTypeIds: ["dos"] },
-    { id: "souleve-terre", name: "Soulevé de terre", sessionTypeIds: ["dos", "legs"] },
-    { id: "curl-biceps", name: "Curl biceps", sessionTypeIds: ["pull"] },
-    { id: "squat", name: "Squat", sessionTypeIds: ["legs"] },
-    { id: "presse", name: "Presse à cuisses", sessionTypeIds: ["legs"] },
-    { id: "fentes", name: "Fentes", sessionTypeIds: ["legs"] },
-    { id: "leg-extension", name: "Leg extension", sessionTypeIds: ["legs"] },
-    { id: "leg-curl", name: "Leg curl", sessionTypeIds: ["legs"] },
+    { id: "souleve-terre", name: "Soulevé de terre", sessionTypeIds: ["dos", "legs", "ischio"] },
+    { id: "curl-biceps", name: "Curl biceps", sessionTypeIds: ["pull", "bras"] },
+    { id: "squat", name: "Squat", sessionTypeIds: ["legs", "quadris"] },
+    { id: "presse", name: "Presse à cuisses", sessionTypeIds: ["legs", "quadris"] },
+    { id: "fentes", name: "Fentes", sessionTypeIds: ["legs", "quadris"] },
+    { id: "leg-extension", name: "Leg extension", sessionTypeIds: ["legs", "quadris"] },
+    { id: "leg-curl", name: "Leg curl", sessionTypeIds: ["legs", "ischio"] },
+    { id: "soulete-jambes-tendues", name: "Soulevé de terre jambes tendues", sessionTypeIds: ["ischio"] },
+    { id: "hip-thrust", name: "Hip thrust", sessionTypeIds: ["ischio", "quadris"] },
     { id: "mollets", name: "Mollets debout", sessionTypeIds: ["legs"] },
     { id: "gainage", name: "Gainage", sessionTypeIds: ["full"] },
     { id: "burpees", name: "Burpees", sessionTypeIds: ["full"] },
+    { id: "elevations-laterales", name: "Élévations latérales", sessionTypeIds: ["epaules"] },
+    { id: "elevations-frontales", name: "Élévations frontales", sessionTypeIds: ["epaules"] },
+    { id: "oiseau", name: "Oiseau (élévations arrière)", sessionTypeIds: ["epaules"] },
+    { id: "face-pull", name: "Face pull", sessionTypeIds: ["epaules", "dos"] },
+    { id: "arnold-press", name: "Arnold press", sessionTypeIds: ["epaules"] },
+    { id: "overhead-smith", name: "Overhead press smith machine", sessionTypeIds: ["epaules"] },
+    { id: "curl-marteau", name: "Curl marteau", sessionTypeIds: ["bras"] },
+    { id: "curl-pupitre", name: "Curl pupitre", sessionTypeIds: ["bras"] },
+    { id: "barre-front", name: "Barre au front", sessionTypeIds: ["bras"] },
+    { id: "dips-triceps", name: "Dips triceps (banc)", sessionTypeIds: ["bras"] },
   ],
 };
 
@@ -361,18 +415,33 @@ function useStore() {
   const [workouts, setWorkouts] = useState(null);
   const [bodyweight, setBodyweight] = useState(null);
   const [templates, setTemplates] = useState(null);
+  const [themeId, setThemeId] = useState(DEFAULT_THEME_ID);
   const [draft, setDraft] = useState(undefined); // undefined = pas encore chargé, null = aucun brouillon
   const [error, setError] = useState(null);
 
   useEffect(() => {
     (async () => {
       let cfg = DEFAULT_CONFIG;
+      let cfgLoadedFromStorage = false;
       try {
         const r = await window.storage.get("config", false);
-        if (r && r.value) cfg = JSON.parse(r.value);
+        if (r && r.value) { cfg = JSON.parse(r.value); cfgLoadedFromStorage = true; }
       } catch (e) {
         try { await window.storage.set("config", JSON.stringify(DEFAULT_CONFIG), false); }
         catch (e2) { setError("Impossible d'accéder à la mémoire de l'app."); }
+      }
+      // Complète une config déjà enregistrée avec les nouveaux types/exercices ajoutés depuis,
+      // sans jamais toucher à ce que l'utilisateur a personnalisé ou supprimé lui-même... sauf
+      // qu'on ne peut pas distinguer "supprimé exprès" de "jamais eu" : on ajoute simplement ce qui manque par id.
+      if (cfgLoadedFromStorage) {
+        const existingTypeIds = new Set(cfg.sessionTypes.map((s) => s.id));
+        const missingTypes = DEFAULT_CONFIG.sessionTypes.filter((s) => !existingTypeIds.has(s.id));
+        const existingExIds = new Set(cfg.exercises.map((e) => e.id));
+        const missingEx = DEFAULT_CONFIG.exercises.filter((e) => !existingExIds.has(e.id));
+        if (missingTypes.length || missingEx.length) {
+          cfg = { ...cfg, sessionTypes: [...cfg.sessionTypes, ...missingTypes], exercises: [...cfg.exercises, ...missingEx] };
+          try { await window.storage.set("config", JSON.stringify(cfg), false); } catch (e) { /* pas bloquant */ }
+        }
       }
       setConfig(cfg);
 
@@ -396,6 +465,14 @@ function useStore() {
         if (r && r.value) tpl = JSON.parse(r.value);
       } catch (e) { /* aucun modèle encore créé */ }
       setTemplates(tpl);
+
+      let th = DEFAULT_THEME_ID;
+      try {
+        const r = await window.storage.get("theme", false);
+        if (r && r.value && THEMES[r.value]) th = r.value;
+      } catch (e) { /* mode couleur par défaut */ }
+      applyTheme(th);
+      setThemeId(th);
 
       let dr = null;
       try {
@@ -430,6 +507,13 @@ function useStore() {
     catch (e) { setError("La sauvegarde des modèles a échoué."); }
   }, []);
 
+  const saveTheme = useCallback(async (next) => {
+    applyTheme(next);
+    setThemeId(next);
+    try { await window.storage.set("theme", next, false); }
+    catch (e) { setError("La sauvegarde du mode couleur a échoué."); }
+  }, []);
+
   const saveDraft = useCallback(async (next) => {
     setDraft(next);
     try {
@@ -438,7 +522,7 @@ function useStore() {
     } catch (e) { /* pas bloquant */ }
   }, []);
 
-  return { config, workouts, bodyweight, templates, draft, saveConfig, saveWorkouts, saveBodyweight, saveTemplates, saveDraft, error, setError };
+  return { config, workouts, bodyweight, templates, themeId, draft, saveConfig, saveWorkouts, saveBodyweight, saveTemplates, saveTheme, saveDraft, error, setError };
 }
 
 
@@ -549,6 +633,7 @@ function SeanceTab({ config, workouts, saveWorkouts, editingId, setEditingId, dr
   const [exList, setExList] = useState(base.exercises || []);
   const [exPicker, setExPicker] = useState(false);
   const [exSearch, setExSearch] = useState("");
+  const [pickerTypeFilter, setPickerTypeFilter] = useState("current"); // "current" | "all" | <sessionTypeId>
   const [confirmClear, setConfirmClear] = useState(false);
   const [showFractionne, setShowFractionne] = useState(false);
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
@@ -582,14 +667,17 @@ function SeanceTab({ config, workouts, saveWorkouts, editingId, setEditingId, dr
 
   const filteredExercises = useMemo(() => {
     let list = config.exercises;
-    if (!exSearch) {
-      list = list.filter((e) => e.sessionTypeIds.includes(sessionTypeId));
-      if (list.length === 0) list = config.exercises;
+    if (exSearch) {
+      list = list.filter((e) => normalizeSearch(e.name).includes(normalizeSearch(exSearch)));
+    } else if (pickerTypeFilter === "all") {
+      // tout afficher, sans filtre — pour voir la liste complète sans avoir à chercher
     } else {
-      list = list.filter((e) => e.name.toLowerCase().includes(exSearch.toLowerCase()));
+      const typeId = pickerTypeFilter === "current" ? sessionTypeId : pickerTypeFilter;
+      list = list.filter((e) => e.sessionTypeIds.includes(typeId));
+      if (list.length === 0) list = config.exercises;
     }
     return list;
-  }, [config.exercises, sessionTypeId, exSearch]);
+  }, [config.exercises, sessionTypeId, exSearch, pickerTypeFilter]);
 
   const addExercise = (exerciseId) => {
     if (exList.find((e) => e.exerciseId === exerciseId)) { setExPicker(false); setExSearch(""); return; }
@@ -816,7 +904,7 @@ function SeanceTab({ config, workouts, saveWorkouts, editingId, setEditingId, dr
       </Field>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {exList.map((ex) => {
+        {exList.map((ex, exIndex) => {
           const exInfo = config.exercises.find((e) => e.id === ex.exerciseId);
           const last = bestSetOfExerciseBefore(workouts, ex.exerciseId, date, id);
           const maxEver = maxWeightEver(workouts, ex.exerciseId, id);
@@ -824,7 +912,10 @@ function SeanceTab({ config, workouts, saveWorkouts, editingId, setEditingId, dr
             <div key={ex.exerciseId} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 14 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                 <div>
-                  <div style={{ fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 500, color: T.text }}>{exInfo?.name || "Exercice"}</div>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                    <span style={{ fontFamily: T.fontMono, fontSize: 12, color: T.textFaint }}>#{exIndex + 1}</span>
+                    <div style={{ fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 500, color: T.text }}>{exInfo?.name || "Exercice"}</div>
+                  </div>
                   {last && (
                     <div style={{ fontSize: 12, color: T.textFaint, fontFamily: T.fontMono, marginTop: 2 }}>
                       Dernière fois ({fmtDateShort(last.date)}) : {fmtSetsGrouped(last.sets)}
@@ -901,6 +992,26 @@ function SeanceTab({ config, workouts, saveWorkouts, editingId, setEditingId, dr
                 placeholder="Chercher un exercice…" style={{ ...inputStyle, border: "none", padding: 0, background: "none" }} />
               <button onClick={() => { setExPicker(false); setExSearch(""); }} style={{ background: "none", border: "none", color: T.textFaint, cursor: "pointer" }}><X size={16} /></button>
             </div>
+            {!exSearch && (
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                <button onClick={() => setPickerTypeFilter("all")} style={{
+                  fontSize: 12, fontFamily: T.fontBody, fontWeight: 600, padding: "5px 10px", borderRadius: 999, cursor: "pointer",
+                  background: pickerTypeFilter === "all" ? T.accentSoft : "transparent",
+                  color: pickerTypeFilter === "all" ? T.accent : T.textFaint,
+                  border: `1px solid ${pickerTypeFilter === "all" ? T.accent + "77" : T.borderLight}`,
+                }}>Tous</button>
+                {config.sessionTypes.map((st) => {
+                  const active = pickerTypeFilter === st.id || (pickerTypeFilter === "current" && sessionTypeId === st.id);
+                  return (
+                    <button key={st.id} onClick={() => setPickerTypeFilter(st.id)} style={{
+                      fontSize: 12, fontFamily: T.fontBody, fontWeight: 600, padding: "5px 10px", borderRadius: 999, cursor: "pointer",
+                      background: active ? `${st.color}22` : "transparent", color: active ? st.color : T.textFaint,
+                      border: `1px solid ${active ? st.color + "77" : T.borderLight}`,
+                    }}>{st.name}</button>
+                  );
+                })}
+              </div>
+            )}
             <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 260, overflowY: "auto" }}>
               {filteredExercises.map((e) => (
                 <button key={e.id} onClick={() => addExercise(e.id)}
@@ -1537,12 +1648,13 @@ function PoidsTab({ bodyweight, saveBodyweight }) {
 /* =================================================================
    TAB: RÉGLAGES
 ==================================================================*/
-function ReglagesTab({ config, saveConfig, templates, saveTemplates, workouts, saveWorkouts, bodyweight, saveBodyweight }) {
+function ReglagesTab({ config, saveConfig, templates, saveTemplates, workouts, saveWorkouts, bodyweight, saveBodyweight, themeId, saveTheme }) {
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypeColor, setNewTypeColor] = useState(PALETTE[0]);
   const [newExName, setNewExName] = useState("");
   const [newExTypes, setNewExTypes] = useState([]);
   const [exFilter, setExFilter] = useState("");
+  const [libTypeFilter, setLibTypeFilter] = useState("all");
   const [tplName, setTplName] = useState("");
   const [tplSessionTypeId, setTplSessionTypeId] = useState(config.sessionTypes[0]?.id || "");
   const [tplExerciseIds, setTplExerciseIds] = useState([]);
@@ -1584,10 +1696,32 @@ function ReglagesTab({ config, saveConfig, templates, saveTemplates, workouts, s
     await saveConfig(next);
   };
 
-  const filteredExercises = config.exercises.filter((e) => e.name.toLowerCase().includes(exFilter.toLowerCase()));
+  const filteredExercises = config.exercises
+    .filter((e) => normalizeSearch(e.name).includes(normalizeSearch(exFilter)))
+    .filter((e) => libTypeFilter === "all" || e.sessionTypeIds.includes(libTypeFilter));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+      <section>
+        <h3 style={sectionTitleStyle}>Apparence</h3>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {Object.entries(THEMES).map(([id, t]) => {
+            const active = themeId === id;
+            return (
+              <button key={id} onClick={() => saveTheme(id)} style={{
+                display: "flex", alignItems: "center", gap: 8, background: T.card,
+                border: `1px solid ${active ? t.swatch : T.border}`, borderRadius: 10, padding: "9px 14px",
+                cursor: "pointer", fontFamily: T.fontBody, fontSize: 13.5, fontWeight: 600, color: active ? T.text : T.textMuted,
+              }}>
+                <span style={{ width: 16, height: 16, borderRadius: 999, background: t.swatch, border: `1px solid ${T.borderLight}`, flexShrink: 0 }} />
+                {t.label}
+                {active && <Check size={14} color={t.swatch} />}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
       <section>
         <h3 style={sectionTitleStyle}>Modèles de séance</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1740,6 +1874,21 @@ function ReglagesTab({ config, saveConfig, templates, saveTemplates, workouts, s
       <section>
         <h3 style={sectionTitleStyle}>Bibliothèque d'exercices</h3>
         <input value={exFilter} onChange={(e) => setExFilter(e.target.value)} placeholder="Filtrer…" style={{ ...inputStyle, marginBottom: 10 }} />
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+          <button onClick={() => setLibTypeFilter("all")} style={{
+            fontSize: 12, fontFamily: T.fontBody, fontWeight: 600, padding: "5px 10px", borderRadius: 999, cursor: "pointer",
+            background: libTypeFilter === "all" ? T.accentSoft : "transparent",
+            color: libTypeFilter === "all" ? T.accent : T.textFaint,
+            border: `1px solid ${libTypeFilter === "all" ? T.accent + "77" : T.borderLight}`,
+          }}>Tous</button>
+          {config.sessionTypes.map((st) => (
+            <button key={st.id} onClick={() => setLibTypeFilter(st.id)} style={{
+              fontSize: 12, fontFamily: T.fontBody, fontWeight: 600, padding: "5px 10px", borderRadius: 999, cursor: "pointer",
+              background: libTypeFilter === st.id ? `${st.color}22` : "transparent", color: libTypeFilter === st.id ? st.color : T.textFaint,
+              border: `1px solid ${libTypeFilter === st.id ? st.color + "77" : T.borderLight}`,
+            }}>{st.name}</button>
+          ))}
+        </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 340, overflowY: "auto" }}>
           {filteredExercises.map((ex) => (
             <div key={ex.id} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: "9px 10px" }}>
@@ -1931,16 +2080,17 @@ function useChrono() {
 
 function ChronoButton({ chrono }) {
   const { setOpen, sessionActive, totalElapsedSec } = chrono;
+  const big = sessionActive;
   return (
     <button onClick={() => setOpen((o) => !o)} aria-label="Chronomètre"
       style={{
-        width: 42, height: 42, borderRadius: 999, flexShrink: 0,
-        background: sessionActive ? T.accent : T.card, border: `1px solid ${sessionActive ? T.accent : T.borderLight}`,
+        width: big ? 78 : 42, height: big ? 78 : 42, borderRadius: 999, flexShrink: 0,
+        background: sessionActive ? T.accent : T.card, border: `${big ? 2 : 1}px solid ${sessionActive ? T.accent : T.borderLight}`,
         color: sessionActive ? "#fff" : T.text, display: "flex", alignItems: "center", justifyContent: "center",
-        cursor: "pointer",
+        cursor: "pointer", boxShadow: big ? "0 4px 18px rgba(196,67,43,0.45)" : "none", transition: "width .15s, height .15s",
       }}>
       {sessionActive ? (
-        <span style={{ fontFamily: T.fontMono, fontSize: 10.5, fontWeight: 700 }}>{fmtClock(totalElapsedSec)}</span>
+        <span style={{ fontFamily: T.fontMono, fontSize: 19, fontWeight: 800, letterSpacing: -0.5 }}>{fmtClock(totalElapsedSec)}</span>
       ) : (
         <TimerIcon size={19} />
       )}
@@ -1985,7 +2135,7 @@ const TABS = [
 ];
 
 function App() {
-  const { config, workouts, bodyweight, templates, draft, saveConfig, saveWorkouts, saveBodyweight, saveTemplates, saveDraft, error, setError } = useStore();
+  const { config, workouts, bodyweight, templates, themeId, draft, saveConfig, saveWorkouts, saveBodyweight, saveTemplates, saveTheme, saveDraft, error, setError } = useStore();
   const [tab, setTab] = useState("seance");
   const [editingId, setEditingId] = useState(null);
   const chrono = useChrono();
@@ -2051,19 +2201,30 @@ function App() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.fontBody, color: T.text, paddingBottom: 84 }}>
+    <div key={themeId} style={{ minHeight: "100vh", background: T.bg, fontFamily: T.fontBody, color: T.text, paddingBottom: 84 }}>
       <FontLoader />
-      <header style={{ padding: "16px 18px", borderBottom: `1px solid ${T.border}`, position: "sticky", top: 0, background: T.bg, zIndex: 5 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-            <Dumbbell size={22} color={T.accent} style={{ flexShrink: 0 }} />
-            <h1 style={{
-              fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 600, letterSpacing: 0.4, margin: 0, textTransform: "uppercase",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            }}>Assistant musculation</h1>
+      <header style={{ padding: chrono.sessionActive ? "0" : "16px 18px", borderBottom: `1px solid ${T.border}`, position: "sticky", top: 0, background: T.bg, zIndex: 5, overflow: "hidden" }}>
+        {chrono.sessionActive ? (
+          <button onClick={() => chrono.setOpen((o) => !o)} aria-label="Chronomètre" style={{
+            width: "100%", padding: "26px 18px", background: T.accent, border: "none", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{ fontFamily: T.fontMono, fontSize: 56, fontWeight: 800, letterSpacing: -0.5, color: "#fff", lineHeight: 1 }}>{fmtClock(chrono.totalElapsedSec)}</span>
+          </button>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+              <Dumbbell size={22} color={T.accent} style={{ flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <h1 style={{
+                  fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 600, letterSpacing: 0.4, margin: 0, textTransform: "uppercase",
+                  whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                }}>Assistant musculation</h1>
+                <span style={{ fontFamily: T.fontBody, fontSize: 10.5, color: T.textFaint, fontWeight: 500 }}>by Quentin LARDE</span>
+              </div>
+            </div>
           </div>
-          {chrono.sessionActive && <ChronoButton chrono={chrono} />}
-        </div>
+        )}
       </header>
 
       <ChronoWidget chrono={chrono} onStopSession={finishActiveSession} />
@@ -2085,7 +2246,7 @@ function App() {
         {tab === "calendrier" && <CalendrierTab config={config} workouts={workouts} bodyweight={bodyweight} onEdit={goEdit} />}
         {tab === "poids" && <PoidsTab bodyweight={bodyweight} saveBodyweight={saveBodyweight} />}
         {tab === "progression" && <ProgressionTab config={config} workouts={workouts} />}
-        {tab === "reglages" && <ReglagesTab config={config} saveConfig={saveConfig} templates={templates} saveTemplates={saveTemplates} workouts={workouts} saveWorkouts={saveWorkouts} bodyweight={bodyweight} saveBodyweight={saveBodyweight} />}
+        {tab === "reglages" && <ReglagesTab config={config} saveConfig={saveConfig} templates={templates} saveTemplates={saveTemplates} workouts={workouts} saveWorkouts={saveWorkouts} bodyweight={bodyweight} saveBodyweight={saveBodyweight} themeId={themeId} saveTheme={saveTheme} />}
       </main>
 
       <nav style={{
