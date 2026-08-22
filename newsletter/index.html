@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bêta — la newsletter de Quentin Larde</title>
+<meta name="description" content="Bêta : le brief quotidien de Quentin Larde sur l'IA, la data, l'assurance, la finance et la tech, chaque nuit à minuit.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A1220; --bg2:#0F1A2C; --card:#132136; --card-hover:#17283F;
+    --border:#1E3350; --border-light:#2B4569;
+    --text:#ECF1F7; --text-muted:#93A4BC; --text-faint:#5E7291;
+    --accent:#4FA8E8; --accent-soft:rgba(79,168,232,0.14);
+    --copper:#E8635C; --copper-soft:rgba(232,99,92,0.14);
+    --font-display:'Fraunces',serif; --font-body:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--font-body);
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .wrap{max-width:760px; margin:0 auto; padding:0 20px;}
+
+  .back{
+    display:inline-flex; align-items:center; gap:6px; margin-top:28px;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.04em;
+    color:var(--text-faint); text-decoration:none;
+  }
+  .back:hover{color:var(--accent);}
+
+  header.hero{position:relative; padding:36px 0 40px; border-bottom:1px solid var(--border); overflow:hidden;}
+  canvas#curve{
+    position:absolute; right:-30px; top:6px; width:300px; height:190px;
+    opacity:0.5; pointer-events:none;
+  }
+  .eyebrow{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); margin:0 0 14px; position:relative; z-index:1;
+  }
+  h1{
+    font-family:var(--font-display); font-weight:600; font-size:clamp(38px,7vw,54px);
+    line-height:1.05; margin:0 0 16px; letter-spacing:-.01em; position:relative; z-index:1;
+  }
+  h1 .glyph{color:var(--accent); font-style:italic;}
+  .lede{color:var(--text-muted); font-size:16.5px; line-height:1.65; max-width:48ch; margin:0; position:relative; z-index:1;}
+
+  .tags{
+    margin-top:28px; padding-top:18px; border-top:1px dashed var(--border);
+    display:flex; flex-wrap:wrap; gap:8px 10px; position:relative; z-index:1;
+  }
+  .tag{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--text-muted); background:var(--card); border:1px solid var(--border);
+    border-radius:3px; padding:5px 10px;
+  }
+
+  section{padding:44px 0;}
+  section + section{border-top:1px solid var(--border);}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:20px;}
+  .section-title{
+    font-family:var(--font-display); font-weight:600; font-size:22px; margin:0; letter-spacing:-.01em;
+  }
+  .section-count{font-family:var(--font-mono); font-size:12px; color:var(--text-faint);}
+
+  .pitch p{font-size:16px; line-height:1.7; color:var(--text-muted); max-width:56ch; margin:0;}
+  .pitch strong{color:var(--text); font-weight:600;}
+
+  .stack{display:flex; flex-direction:column; gap:12px;}
+
+  /* même carte "fiche" que le reste du site */
+  .card{
+    position:relative; display:flex; flex-direction:column; gap:8px;
+    background:var(--card); border:1px solid var(--border); border-radius:4px;
+    padding:18px 20px 16px 44px; transition:border-color .15s, background .15s;
+  }
+  .card:hover{background:var(--card-hover); border-color:var(--border-light);}
+  .card::before{
+    content:attr(data-tab); position:absolute; left:0; top:0; bottom:0; width:28px;
+    display:flex; align-items:center; justify-content:center;
+    writing-mode:vertical-rl; text-orientation:mixed; transform:rotate(180deg);
+    font-family:var(--font-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em;
+    color:var(--tab-color,var(--accent)); background:var(--tab-bg,var(--accent-soft));
+    border-right:1px solid var(--border);
+  }
+  .card[data-kind="opp"]{--tab-color:var(--copper); --tab-bg:var(--copper-soft);}
+
+  .card-title{font-family:var(--font-body); font-weight:600; font-size:15.5px; margin:0;}
+  .card-desc{color:var(--text-muted); font-size:13.5px; line-height:1.55; margin:0; max-width:52ch;}
+
+  .cta{padding:44px 0 8px;}
+  .cta-row{display:flex; align-items:center; gap:20px; flex-wrap:wrap;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--font-body); font-weight:600;
+    font-size:15px; padding:13px 24px; border-radius:4px; text-decoration:none; cursor:pointer;
+    border:1px solid var(--accent); transition:opacity .15s, transform .1s;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent); color:#0A1220;}
+  .btn-primary:hover{background:#6bb8ef;}
+  .btn .arrow{font-family:var(--font-mono);}
+  .cta-micro{margin:16px 0 0; font-size:13px; line-height:1.6; color:var(--text-faint); max-width:48ch;}
+
+  footer{
+    padding:36px 0 60px; color:var(--text-faint); font-size:12px; font-family:var(--font-mono);
+    display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px;
+  }
+  footer a{color:var(--text-muted); text-decoration:underline; text-decoration-color:var(--border-light);}
+  footer a:hover{color:var(--accent);}
+
+  @media (max-width: 480px){
+    canvas#curve{display:none;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <a class="back" href="../">← quentinlarde.github.io/perso</a>
+
+    <header class="hero">
+      <canvas id="curve" width="600" height="380" aria-hidden="true"></canvas>
+      <p class="eyebrow">Une lettre, chaque nuit à minuit</p>
+      <h1>🧠 B<span class="glyph">ê</span>ta</h1>
+      <p class="lede">Le brief quotidien d'un actuaire sur l'IA, la data, l'assurance, la finance et la tech — trois infos qui comptent, une occasion business, une chose à apprendre. Filtré la nuit, prêt au réveil.</p>
+      <div class="tags">
+        <span class="tag">IA</span><span class="tag">Data</span><span class="tag">Assurance</span><span class="tag">Finance</span><span class="tag">Tech</span><span class="tag">Business</span>
+      </div>
+    </header>
+
+    <section class="pitch">
+      <p>Bêta dépouille les newsletters spécialisées de la veille et n'en garde que l'essentiel. Pas de fil d'actu à faire défiler — une lecture de trois minutes, écrite pour quelqu'un qui pense en risques, en données et en ordres de grandeur.</p>
+    </section>
+
+    <section id="contenu">
+      <div class="section-head">
+        <h2 class="section-title">Ce que tu reçois chaque nuit</h2>
+        <span class="section-count">04</span>
+      </div>
+      <div class="stack">
+        <div class="card" data-tab="TOP" data-kind="app">
+          <h3 class="card-title">3 infos à ne pas manquer</h3>
+          <p class="card-desc">Les faits marquants de la veille en IA, data, assurance, finance et tech, avec le contexte qui compte — pas juste un titre.</p>
+        </div>
+        <div class="card" data-tab="+2" data-kind="app">
+          <h3 class="card-title">2 infos secondaires</h3>
+          <p class="card-desc">Ce qui n'a pas fait le podium mais mérite quand même une ligne.</p>
+        </div>
+        <div class="card" data-tab="OPP" data-kind="opp">
+          <h3 class="card-title">Une opportunité business</h3>
+          <p class="card-desc">Un angle repérable dans l'actu de la veille : marché, produit, revenu.</p>
+        </div>
+        <div class="card" data-tab="+1" data-kind="opp">
+          <h3 class="card-title">Un point à apprendre</h3>
+          <p class="card-desc">Une notion, un outil ou un chiffre à retenir, expliqué simplement.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="cta-row">
+        <a class="btn btn-primary" href="mailto:larde.quentin@gmail.com?subject=S%27abonner%20%C3%A0%20B%C3%AAta&body=Salut%20Quentin%2C%0A%0AJe%20voudrais%20recevoir%20B%C3%AAta%2C%20merci%20%21%0A%0A(Envoie%20simplement%20ce%20mail%20tel%20quel.)">
+          Je m'abonne <span class="arrow">→</span>
+        </a>
+      </div>
+      <p class="cta-micro">Un mail pré-rempli s'ouvre dans ta messagerie. Envoie-le tel quel : tu recevras Bêta dès la prochaine édition, chaque nuit à minuit heure de Paris.</p>
+    </section>
+
+    <footer>
+      <span>Projet personnel de Quentin Larde.</span>
+      <a href="mailto:larde.quentin@gmail.com?subject=Se%20d%C3%A9sabonner%20de%20B%C3%AAta&body=Salut%20Quentin%2C%0A%0APeux-tu%20me%20retirer%20de%20B%C3%AAta%2C%20merci.">Se désabonner</a>
+    </footer>
+  </div>
+
+  <script>
+  (function () {
+    var canvas = document.getElementById('curve');
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+
+    // Vraie densité de probabilité Beta(alpha, beta), via une
+    // approximation de Lanczos pour ln-Gamma (aucune librairie externe).
+    function lnGamma(x) {
+      var g = 7;
+      var c = [
+        0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+        771.32342877765313, -176.61502916214059, 12.507343278686905,
+        -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7
+      ];
+      if (x < 0.5) {
+        return Math.log(Math.PI / Math.sin(Math.PI * x)) - lnGamma(1 - x);
+      }
+      x -= 1;
+      var a = c[0];
+      var t = x + g + 0.5;
+      for (var i = 1; i < g + 2; i++) a += c[i] / (x + i);
+      return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+    }
+
+    function betaPdf(x, a, b) {
+      if (x <= 0 || x >= 1) return 0;
+      var lnB = lnGamma(a) + lnGamma(b) - lnGamma(a + b);
+      return Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x) - lnB);
+    }
+
+    var alpha = 2.6, beta = 6.2; // un léger biais à droite, comme un risque bien maîtrisé
+    var N = 200, pts = [], maxY = 0;
+    for (var i = 0; i <= N; i++) {
+      var x = i / N;
+      var y = betaPdf(x, alpha, beta);
+      pts.push(y);
+      if (y > maxY) maxY = y;
+    }
+
+    var padL = 8, padR = 8, padT = 16, padB = 16;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#4FA8E8';
+
+    ctx.beginPath();
+    ctx.moveTo(padL, H - padB);
+    for (var j = 0; j <= N; j++) {
+      var px = padL + (j / N) * plotW;
+      var py = (H - padB) - (pts[j] / maxY) * plotH;
+      ctx.lineTo(px, py);
+    }
+    ctx.lineTo(W - padR, H - padB);
+    ctx.closePath();
+    ctx.fillStyle = accent;
+    ctx.globalAlpha = 0.16;
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    for (var k = 0; k <= N; k++) {
+      var qx = padL + (k / N) * plotW;
+      var qy = (H - padB) - (pts[k] / maxY) * plotH;
+      if (k === 0) ctx.moveTo(qx, qy); else ctx.lineTo(qx, qy);
+    }
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  })();
+  </script>
+
+</body>
+</html>
