@@ -505,7 +505,7 @@ footer.pane-foot{
           <tr class="plan-group"><td colspan="2">Manipuler et croiser les données</td></tr>
           <tr><td>5. RECHERCHEV</td><td>Recherche verticale entre bases</td></tr>
           <tr><td>6. Logique conditionnelle</td><td>SI, ET, OU, NON, ESTNA</td></tr>
-          <tr><td>7. Compter et sommer sous conditions</td><td>NB.SI, SOMME.SI, MOYENNE.SI</td></tr>
+          <tr><td>7. Compter et sommer sous conditions</td><td>NB.SI, SOMME.SI, MOYENNE.SI et leurs versions multi-critères .ENS</td></tr>
           <tr class="plan-group"><td colspan="2">Explorer et mettre en forme</td></tr>
           <tr><td>8. Mise en forme conditionnelle</td><td>Rendre visible un signal</td></tr>
           <tr><td>9. Validation des données</td><td>Sécuriser la saisie</td></tr>
@@ -1116,7 +1116,7 @@ footer.pane-foot{
     <div class="pane-head">
       <span class="eyebrow">Bloc 7</span>
       <h2>Compter et sommer sous conditions</h2>
-      <div class="meta"><span class="chip">NB.SI · SOMME.SI · MOYENNE.SI</span></div>
+      <div class="meta"><span class="chip">NB.SI · SOMME.SI · MOYENNE.SI</span><span class="chip">NB.SI.ENS · SOMME.SI.ENS · MOYENNE.SI.ENS</span></div>
     </div>
 
     <p class="lead">Trois formules qui reviennent en permanence dans un reporting de portefeuille — combiner un critère et un calcul, sans passer par un TCD.</p>
@@ -1150,11 +1150,7 @@ footer.pane-foot{
       <p class="formula-tag">Exemple appliqué</p>
       <div class="ref-card" style="margin-bottom:1rem;"><span class="f">=MOYENNE.SI(F2:F13;"Rural";M2:M13)</span><span class="d">Même logique pour une moyenne — ici la charge de sinistre moyenne, mais uniquement sur les lignes qui remplissent le critère.</span></div>
       </div>
-      <p>NB.SI, SOMME.SI et MOYENNE.SI ont chacune une variante à plusieurs critères : NB.SI.ENS, SOMME.SI.ENS, MOYENNE.SI.ENS. Avec un seul critère, elles servent surtout à agréger directement une base qui compte plusieurs lignes par contrat — comme la base Sinistre — sans passer par une jointure (RECHERCHEV) :</p>
-      <div class="ref-grid">
-        <div class="ref-card"><span class="f">=NB.SI.ENS(Sinistre!A:A;A2)</span><span class="d">Compte le nombre de lignes de la base Sinistre où la colonne Contrat vaut A2 — c'est exactement comme ça qu'est construite la colonne Nb_sinistres de la table Portefeuille, contrat par contrat, sans jointure.</span></div>
-        <div class="ref-card"><span class="f">=SOMME.SI.ENS(Sinistre!E:E;Sinistre!A:A;A2)</span><span class="d">Additionne la charge (colonne E de la base Sinistre) des seules lignes où le Contrat vaut A2. Notez l'ordre des arguments, différent de SOMME.SI : la plage à additionner vient en premier. C'est ainsi qu'est construite la colonne Somme_sinistres.</span></div>
-      </div>
+      <p>Ces trois formules ne gèrent qu’<strong>un seul</strong> critère. Pour en croiser plusieurs, voir leurs variantes <code>.ENS</code> juste après.</p>
 
       <div class="exercise" data-type="number" data-accept='["3"]' data-tol="0">
         <span class="ex-num"></span>
@@ -1180,6 +1176,99 @@ footer.pane-foot{
         <details class="ex-explain"><summary>Explication</summary><p><code>=MOYENNE.SI(F2:F13;"Urbain";M2:M13)</code> → 3 460 € (1200+3400+5200+800+6700 = 17 300, divisé par 5). Nettement plus élevée que la moyenne globale (≈1 742 €) — la zone Urbaine concentre les plus gros sinistres de ce portefeuille.</p></details>
       </div>
     </section>
+
+    <section class="block">
+      <h4>Croiser plusieurs critères — les versions .ENS</h4>
+      <p>NB.SI, SOMME.SI et MOYENNE.SI ne savent traiter qu'une seule condition. Dès qu'il faut en croiser deux — la prime des contrats urbains <em>et</em> de moins de 30 ans — on passe à leurs variantes <strong>NB.SI.ENS</strong>, <strong>SOMME.SI.ENS</strong> et <strong>MOYENNE.SI.ENS</strong>. Le suffixe <code>.ENS</code> signifie « ensemble de critères » : la formule accepte autant de couples <code>plage ; critère</code> qu'on veut, et ne retient que les lignes qui les vérifient <strong>tous</strong>.</p>
+
+      <div class="ref-grid">
+      <p class="formula-tag">Syntaxe</p>
+      <div class="ref-card syntax" style="margin-bottom:.6rem;"><span class="f">=NB.SI.ENS(plage_critère1; critère1; [plage_critère2; critère2]; …)</span><span class="d"><ul class="fs-args">
+        <li><code>plage_critère1</code> — la colonne sur laquelle porte la première condition.</li>
+        <li><code>critère1</code> — la condition correspondante.</li>
+        <li><code>plage_critère2 ; critère2</code> — le couple suivant, facultatif, à répéter autant de fois que nécessaire.</li>
+      </ul>Les arguments vont toujours <strong>par paires</strong> : une plage, puis son critère. Même logique que NB.SI, simplement répétée.</span></div>
+      <p class="formula-tag">Exemple appliqué</p>
+      <div class="ref-card" style="margin-bottom:.6rem;"><span class="f">=NB.SI.ENS(F2:F13;"Urbain";K2:K13;"&lt;30")</span><span class="d">Compte les contrats qui sont en zone Urbaine <em>et</em> dont l'assuré a moins de 30 ans (colonne K) → 4 contrats : AA1 (24 ans), AA5 (19), AA7 (27), AA10 (22). AA3 est bien urbain mais a 31 ans : il ne compte pas.</span></div>
+
+      <p class="formula-tag">Syntaxe</p>
+      <div class="ref-card syntax" style="margin-bottom:.6rem;"><span class="f">=SOMME.SI.ENS(plage_somme; plage_critère1; critère1; [plage_critère2; critère2]; …)</span><span class="d"><ul class="fs-args">
+        <li><code>plage_somme</code> — la colonne à additionner, <strong>en premier argument</strong>.</li>
+        <li><code>plage_critère1 ; critère1</code> — le premier couple condition.</li>
+        <li>puis autant de couples supplémentaires que nécessaire.</li>
+      </ul>C'est l'ordre inverse de SOMME.SI, où la plage à additionner venait en dernier.</span></div>
+      <p class="formula-tag">Exemple appliqué</p>
+      <div class="ref-card" style="margin-bottom:.6rem;"><span class="f">=SOMME.SI.ENS(E2:E13;F2:F13;"Urbain";K2:K13;"&lt;30")</span><span class="d">Additionne les primes (colonne E) des seuls contrats urbains de moins de 30 ans → 3 530 € (850 + 980 + 790 + 910), c'est-à-dire les mêmes 4 lignes que l'exemple précédent.</span></div>
+
+      <p class="formula-tag">Syntaxe</p>
+      <div class="ref-card syntax" style="margin-bottom:.6rem;"><span class="f">=MOYENNE.SI.ENS(plage_moyenne; plage_critère1; critère1; …)</span><span class="d"><ul class="fs-args">
+        <li><code>plage_moyenne</code> — la colonne dont on calcule la moyenne, elle aussi <strong>en premier</strong>.</li>
+        <li>puis les couples <code>plage ; critère</code>, comme au-dessus.</li>
+      </ul></span></div>
+      <p class="formula-tag">Exemple appliqué</p>
+      <div class="ref-card" style="margin-bottom:1rem;"><span class="f">=MOYENNE.SI.ENS(E2:E13;F2:F13;"Rural";K2:K13;"&gt;=50")</span><span class="d">Prime moyenne des contrats ruraux dont l'assuré a 50 ans ou plus → 565 € (AA4 : 590 € à 52 ans, AA8 : 540 € à 61 ans).</span></div>
+      </div>
+
+      <div class="note warn"><strong>Le piège classique —</strong> l'ordre des arguments change entre les deux familles. <code>=SOMME.SI(F2:F13;"Urbain";E2:E13)</code> met la plage à sommer <em>en dernier</em> ; <code>=SOMME.SI.ENS(E2:E13;F2:F13;"Urbain")</code> la met <em>en premier</em>. Les deux formules donnent ici le même résultat (4 240 €), mais écrire <code>=SOMME.SI.ENS(F2:F13;"Urbain";E2:E13)</code> renvoie une erreur : Excel essaie d'additionner une colonne de texte. Moyen mnémotechnique : dans les versions .ENS, on commence par dire <em>ce qu'on calcule</em>, puis on empile les conditions.</div>
+
+      <h4>Écrire un critère</h4>
+      <p>Le critère est le même objet dans toutes ces formules — un texte entre guillemets, dans lequel on glisse éventuellement un opérateur de comparaison.</p>
+      <div class="ref-grid">
+        <div class="ref-card"><span class="f">"Urbain"</span><span class="d">Égalité sur du texte. La casse est ignorée : "urbain" fonctionne aussi. En revanche les accents comptent — "Periurbain" ne trouvera rien.</span></div>
+        <div class="ref-card"><span class="f">"&gt;3000" · "&lt;=30" · "&lt;&gt;0"</span><span class="d">Comparaison numérique. L'opérateur est <strong>à l'intérieur</strong> des guillemets. <code>"&lt;&gt;"</code> signifie « différent de » — <code>"&lt;&gt;0"</code> isole par exemple les contrats ayant eu au moins un sinistre.</span></div>
+        <div class="ref-card"><span class="f">"&gt;"&amp;P2</span><span class="d">Comparaison à une valeur qui vit dans une cellule (un seuil paramétrable, une date). On écrit l'opérateur entre guillemets, puis on le colle à la référence avec <code>&amp;</code>. Écrire <code>"&gt;P2"</code> ne marche pas : Excel chercherait littéralement le texte « &gt;P2 ».</span></div>
+        <div class="ref-card"><span class="f">"AA1*" · "?A"</span><span class="d">Jokers sur du texte : <code>*</code> remplace n'importe quelle suite de caractères, <code>?</code> un seul caractère. <code>"AA1*"</code> attrape AA1, AA10, AA11, AA12.</span></div>
+        <div class="ref-card"><span class="f">"&gt;="&amp;DATE(2025;7;1)</span><span class="d">Critère de date : on passe par DATE() plutôt que par une date tapée en texte, pour éviter toute ambiguïté de format entre le 01/07 et le 07/01.</span></div>
+      </div>
+
+      <div class="note warn"><strong>Trois règles à ne pas oublier —</strong> (1) toutes les plages d'une même formule doivent avoir <strong>exactement la même hauteur</strong> : <code>F2:F13</code> avec <code>K2:K13</code>, jamais avec <code>K2:K20</code>, sinon #VALEUR!. (2) Les critères se cumulent avec un <strong>ET</strong>, jamais un OU : <code>=NB.SI.ENS(F2:F13;"Urbain";F2:F13;"Rural")</code> renvoie 0, puisqu'aucune ligne ne peut être les deux à la fois — pour un OU, on additionne deux NB.SI.ENS. (3) Si aucune ligne ne satisfait les critères, NB.SI.ENS et SOMME.SI.ENS renvoient 0, mais MOYENNE.SI.ENS renvoie #DIV/0! — d'où l'intérêt de l'emballer dans un SIERREUR quand la formule est recopiée sur toute une colonne.</div>
+
+      <h4>Un seul critère, mais sur une autre feuille : agréger sans jointure</h4>
+      <p>Les versions .ENS servent aussi, avec un <em>seul</em> couple critère, à agréger une base qui compte plusieurs lignes par contrat — comme la base Sinistre, où AA3 apparaît deux fois. C'est exactement ce que RECHERCHEV ne sait pas faire : la recherche s'arrête à la première ligne trouvée et renverrait 1 200 € pour AA3, en oubliant le second sinistre de 2 200 €.</p>
+      <div class="ref-grid">
+        <div class="ref-card"><span class="f">=NB.SI.ENS(Sinistre!$A$2:$A$10;A2)</span><span class="d">Compte les lignes de la base Sinistre dont la colonne Contrat vaut A2 → 2 pour AA3, 0 pour AA2 (aucun sinistre, et c'est bien 0 qui s'affiche, pas une erreur). C'est ainsi qu'est construite la colonne Nb_sinistres de la table Portefeuille.</span></div>
+        <div class="ref-card"><span class="f">=SOMME.SI.ENS(Sinistre!$E$2:$E$10;Sinistre!$A$2:$A$10;A2)</span><span class="d">Additionne la charge (colonne E de la base Sinistre) de toutes les lignes du contrat A2 → 3 400 € pour AA3 (1 200 + 2 200). C'est la colonne Somme_sinistres.</span></div>
+        <div class="ref-card"><span class="f">Pourquoi les <code>$</code> ?</span><span class="d">Les plages de la base Sinistre sont figées ($A$2:$A$10) parce qu'elles ne bougent pas d'une ligne à l'autre ; seul le critère <code>A2</code> reste relatif, pour suivre le contrat quand on recopie la formule vers le bas. Sans les $, la plage glisserait et les derniers contrats perdraient des sinistres.</span></div>
+      </div>
+      <div class="note tip"><strong>RECHERCHEV ou SOMME.SI.ENS ?</strong> RECHERCHEV va chercher <em>une</em> information dans une table où la clé est unique (le prénom de l'assuré, le tarif d'une zone). Les formules .ENS <em>agrègent</em> plusieurs lignes en une valeur, quand la clé est répétée (les sinistres d'un contrat). Une base de sinistres se joint donc avec SOMME.SI.ENS, pas avec RECHERCHEV.</div>
+
+      <div class="exercise" data-type="number" data-accept='["4"]' data-tol="0">
+        <span class="ex-num"></span>
+        <p class="ex-prompt">Combien de contrats sont en zone Urbain <em>et</em> ont un assuré de moins de 30 ans (colonne K) ?</p>
+        <div class="ex-cell"><span class="ex-fx">fx</span><input class="ex-input" type="text" inputmode="decimal" placeholder="Réponse"><button class="ex-check" type="button">Vérifier</button></div>
+        <p class="ex-feedback"></p>
+        <details class="ex-explain"><summary>Explication</summary><p><code>=NB.SI.ENS(F2:F13;"Urbain";K2:K13;"&lt;30")</code> → 4 (AA1 24 ans, AA5 19 ans, AA7 27 ans, AA10 22 ans). Les 5 contrats urbains ne comptent pas tous : AA3 a 31 ans.</p></details>
+      </div>
+
+      <div class="exercise" data-type="number" data-accept='["1370"]' data-tol="0">
+        <span class="ex-num"></span>
+        <p class="ex-prompt">Quelle est la somme des primes des contrats en zone Périurbain ayant eu au moins un sinistre (colonne L) ?</p>
+        <div class="ex-cell"><span class="ex-fx">fx</span><input class="ex-input" type="text" inputmode="decimal" placeholder="Réponse en €"><button class="ex-check" type="button">Vérifier</button></div>
+        <p class="ex-feedback"></p>
+        <details class="ex-explain"><summary>Explication</summary><p><code>=SOMME.SI.ENS(E2:E13;F2:F13;"Périurbain";L2:L13;"&gt;0")</code> → 1 370 € (AA9 : 670 € et AA12 : 700 €). AA6 est bien périurbain mais n'a aucun sinistre, sa prime est exclue. Notez que la plage à additionner (E) vient en premier, avant les deux couples de critères.</p></details>
+      </div>
+
+      <div class="exercise" data-type="mcq">
+        <span class="ex-num"></span>
+        <p class="ex-prompt">Que renvoie <code>=NB.SI.ENS(F2:F13;"Urbain";F2:F13;"Rural")</code> ?</p>
+        <div class="ex-options">
+          <button class="ex-opt" data-correct="false">9 — le nombre de contrats urbains ou ruraux</button>
+          <button class="ex-opt" data-correct="true">0</button>
+          <button class="ex-opt" data-correct="false">#VALEUR!</button>
+        </div>
+        <p class="ex-feedback"></p>
+        <details class="ex-explain"><summary>Explication</summary><p>Les critères d'une formule .ENS se cumulent avec un ET : la formule cherche les lignes qui sont à la fois urbaines et rurales, il n'y en a aucune → 0. Pour compter les contrats urbains <em>ou</em> ruraux, il faut additionner deux formules : <code>=NB.SI(F2:F13;"Urbain")+NB.SI(F2:F13;"Rural")</code> → 9.</p></details>
+      </div>
+
+      <div class="exercise" data-type="formula" data-accept='["=SOMME.SI.ENS(Sinistre!E:E;Sinistre!A:A;A2)","=SOMME.SI.ENS(Sinistre!$E$2:$E$10;Sinistre!$A$2:$A$10;A2)","=SOMME.SI.ENS(Sinistre!E2:E10;Sinistre!A2:A10;A2)","=SOMME.SI.ENS(Sinistre!$E:$E;Sinistre!$A:$A;A2)"]'>
+        <span class="ex-num"></span>
+        <p class="ex-prompt">Dans la table Portefeuille, écrivez en ligne 2 la formule qui calcule la charge totale des sinistres du contrat A2, à partir de la feuille Sinistre (colonne A = Contrat, colonne E = Charge_assureur).</p>
+        <div class="ex-cell"><span class="ex-fx">fx</span><input class="ex-input" type="text" placeholder="=..."><button class="ex-check" type="button">Vérifier</button></div>
+        <p class="ex-feedback"></p>
+        <details class="ex-explain"><summary>Explication</summary><p><code>=SOMME.SI.ENS(Sinistre!$E$2:$E$10;Sinistre!$A$2:$A$10;A2)</code> — la plage à additionner d'abord, puis le couple plage_critère / critère. Le préfixe <code>Sinistre!</code> s'applique à chaque plage de l'autre feuille ; le critère <code>A2</code>, lui, reste sur la feuille courante.</p></details>
+      </div>
+    </section>
+
 
     <section class="block">
       <div class="note tip"><strong>Exercice 2 du TD</strong> <button class="nav-btn ghost" data-target="td-prevoyance" style="font-size:.72rem; padding:.25rem .6rem; margin-left:.4rem;">Voir l'exercice →</button></div>
