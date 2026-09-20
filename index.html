@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mon espace</title>
-<meta name="description" content="Applications et documents personnels.">
+<title>Quentin Larde — Cours &amp; projets</title>
+<meta name="description" content="Cours d'Excel, mémoire d'actuariat et applications personnelles de Quentin Larde.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -120,14 +120,16 @@
     </header>
 
     <!--
-      Section Documents — pour ajouter un futur fichier "à venir" : retire aria-disabled="true"
-      du bouton une fois le fichier vraiment déposé dans /files.
+      Section Cours — un bloc <div class="card"> par jeu de fichiers. Les fichiers
+      eux-mêmes vivent dans /files. Sujets d'examen et corrections ne sont pas ici :
+      ils sont sur Moodle, et la ligne sous le titre le dit.
     -->
     <section id="documents">
       <div class="section-head">
         <h2 class="section-title">Cours Excel — M1 Assurance &amp; Gestion des Risques</h2>
-        <span class="section-count">05</span>
+        <span class="section-count">03</span>
       </div>
+      <p class="card-desc" style="margin:-8px 0 20px;">Corrections, sujets d'examen et informations pratiques : cf. Moodle.</p>
       <div class="stack">
         <div class="card" data-tab="COURS" data-kind="xlsx">
           <div class="card-top">
@@ -146,11 +148,9 @@
             <h3 class="card-title">TD — Exercices 1, 2, 3</h3>
             <span class="card-meta">.xlsx</span>
           </div>
-          <p class="card-desc">Version de base (10 500 lignes), correction à venir, et une version plus volumineuse pour s'entraîner.</p>
+          <p class="card-desc">Version de base (10 500 lignes) et une version plus volumineuse pour s'entraîner.</p>
           <div class="card-actions">
             <a class="btn btn-secondary" href="./files/TD_exercice_1_2_3_version_10500lignes.xlsx" download>TD_exercice_1_2_3_version_10500lignes.xlsx</a>
-            <!-- Retire aria-disabled="true" une fois le fichier déposé dans /files -->
-            <a class="btn btn-secondary" href="./files/TD_exercices_1_2_3_10500lignes_correction.xlsx" download>TD_exercices_1_2_3_10500lignes_correction.xlsx</a>
             <a class="btn btn-secondary" href="./files/TD_exercices_1_2_3.xlsx" download>TD_exercices_1_2_3.xlsx (version plus volumineuse)</a>
           </div>
         </div>
@@ -160,38 +160,13 @@
             <h3 class="card-title">TD — Exercices 4, 5</h3>
             <span class="card-meta">.xlsx</span>
           </div>
-          <p class="card-desc">Feuille d'exercices 4 et 5, correction à venir.</p>
+          <p class="card-desc">Feuille d'exercices 4 et 5.</p>
           <div class="card-actions">
             <a class="btn btn-secondary" href="./files/TD_exercices_4_5.xlsx" download>TD_exercices_4_5.xlsx</a>
-            <!-- Retire aria-disabled="true" une fois le fichier déposé dans /files -->
-            <a class="btn btn-secondary" href="./files/TD_exercices_4_5_correction.xlsx" aria-disabled="true" download>TD_exercices_4_5_correction.xlsx</a>
           </div>
         </div>
 
 
-        <div class="card" data-tab="EXAM" data-kind="xlsx">
-          <div class="card-top">
-            <h3 class="card-title">Examen 1</h3>
-            <span class="card-meta">.docx · .xlsx</span>
-          </div>
-          <p class="card-desc">Sujet et fichier Excel associé — à venir.</p>
-          <div class="card-actions">
-            <a class="btn btn-secondary" href="./files/exam_1.docx" aria-disabled="true" download>exam_1.docx</a>
-            <a class="btn btn-secondary" href="./files/exam_1.xlsx" aria-disabled="true" download>exam_1.xlsx</a>
-          </div>
-        </div>
-
-        <div class="card" data-tab="EXAM" data-kind="xlsx">
-          <div class="card-top">
-            <h3 class="card-title">Examen 2</h3>
-            <span class="card-meta">.docx · .xlsx</span>
-          </div>
-          <p class="card-desc">Sujet et fichier Excel associé — à venir.</p>
-          <div class="card-actions">
-            <a class="btn btn-secondary" href="./files/exam_2.docx" aria-disabled="true" download>exam_2.docx</a>
-            <a class="btn btn-secondary" href="./files/exam_2.xlsx" aria-disabled="true" download>exam_2.xlsx</a>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -229,13 +204,14 @@
       <div class="stack">
         <div class="card" data-tab="APP" data-kind="app">
           <div class="card-top">
-            <h3 class="card-title">Assistant musculation</h3>
+            <h3 class="card-title">Assistant sport</h3>
             <span class="card-meta">web · android</span>
           </div>
-          <p class="card-desc">Carnet de séances, suivi du poids, calendrier, progression et minuteur fractionné.</p>
+          <p class="card-desc">Carnet d'entraînement : musculation, autres sports et compétitions, minuteur fractionné, calendrier, assiduité, progression et poids de corps.</p>
           <div class="card-actions">
+            <!-- L'adresse du dossier reste « assistant-musculation » : la changer
+                 casserait le raccourci déjà installé sur les téléphones. -->
             <a class="btn btn-primary" href="./apps/assistant-musculation/">Ouvrir l'appli</a>
-            <!-- Retire aria-disabled="true" une fois assistant-musculation.apk déposé dans /files -->
             <a class="btn btn-secondary" href="./files/assistant-musculation.apk" download>Télécharger l'APK</a>
           </div>
         </div>
